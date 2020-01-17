@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SDOS Test</string>
+    <string name="tasks_done">Realizadas</string>
+    <string name="tasks_to_do">No realizadas</string>
 </resources>

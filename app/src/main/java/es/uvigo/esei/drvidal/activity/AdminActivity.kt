@@ -169,6 +169,7 @@ class AdminActivity : AppCompatActivity() {
                         val userTaskEntity = UserTaskEntity(user.id, habilityIdSelected,  edit_text_description.text.toString(), dateSelected, minutesAssigned)
                         userTaskViewModel.insert(userTaskEntity)
                         runOnUiThread{
+                            toast("Tarea añadida correctamente")
                             alert {
                                 title = "¿Quiere añadir otra tarea?"
                                 isCancelable = false
@@ -190,6 +191,7 @@ class AdminActivity : AppCompatActivity() {
 
     private fun getUsersByHabilityId(habilityId: Int): List<UserEntity> {
         return userHabilityViewModel.getUsersByHabilityId(habilityId)
+        //TODO: Get user with lower work that day
     }
 
 }

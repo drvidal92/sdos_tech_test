@@ -96,7 +96,9 @@ class LoginActivity : AppCompatActivity() {
                         startActivity(intent)
                     }
                     UserEntity.TECHNICAL -> {
-
+                        val intent = Intent(this@LoginActivity, TechnicalActivity::class.java)
+                        intent.putExtra(EXTRA_USER, userEntity)
+                        startActivity(intent)
                     }
                     else -> {
                         toast("Tipo de usuario no válido")

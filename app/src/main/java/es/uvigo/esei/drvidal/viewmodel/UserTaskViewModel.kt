@@ -20,4 +20,8 @@ class UserTaskViewModel(application: Application) : AndroidViewModel(application
     fun insert(userTask: UserTaskEntity) {
         repository.insert(userTask)
     }
+
+    fun getAllByUserId(userId: String) : List<UserTaskEntity> {
+        return repository.getAllByUserId(userId)
+    }
 }

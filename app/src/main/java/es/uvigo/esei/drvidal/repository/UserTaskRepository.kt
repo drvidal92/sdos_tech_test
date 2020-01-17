@@ -12,4 +12,7 @@ class UserTaskRepository(private val userTaskDao: UserTaskDao) {
         userTaskDao.insert(userTask)
     }
 
+    fun getAllByUserId(userId: String) : List<UserTaskEntity> {
+        return userTaskDao.getAllByUserId(userId)
+    }
 }

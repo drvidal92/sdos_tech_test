@@ -4,8 +4,12 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import es.uvigo.esei.drvidal.R
+import es.uvigo.esei.drvidal.adapter.TaskPageAdapter
 import es.uvigo.esei.drvidal.entity.UserEntity
+import es.uvigo.esei.drvidal.fragment.TasksDoneFragment
+import es.uvigo.esei.drvidal.fragment.TasksToDoFragment
 import es.uvigo.esei.drvidal.viewmodel.UserViewModel
+import kotlinx.android.synthetic.main.activity_technical.*
 import org.jetbrains.anko.toast
 
 /**
@@ -17,9 +21,15 @@ class TechnicalActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_admin)
+        setContentView(R.layout.activity_technical)
+        setSupportActionBar(toolbar)
         userViewModel = ViewModelProvider(this).get(UserViewModel::class.java)
         handleExtras()
+        val adapter = TaskPageAdapter(supportFragmentManager)
+        adapter.addFragment(TasksToDoFragment(), "Tareas Pendientes")
+        adapter.addFragment(TasksDoneFragment(), "Tareas Realizadas")
+        viewPager.adapter = adapter
+        tabs.setupWithViewPager(viewPager)
     }
 
     private fun handleExtras() {
