@@ -26,7 +26,9 @@ class TaskPageAdapter(supportFragmentManager: FragmentManager) : FragmentStatePa
     }
 
     fun addFragment(fragment: Fragment, title: String) {
-        mFragmentList.add(fragment)
-        mFragmentTitleList.add(title)
+        if(!fragment.isAdded) {
+            mFragmentList.add(fragment)
+            mFragmentTitleList.add(title)
+        }
     }
 }

@@ -26,5 +26,7 @@ data class UserTaskEntity(
     val description: String,
     val assigned: Long,
     val minutesDuration: Int,
-    val completed: Long? = null
+    val habilityName: String,
+    val createdAt: Long = System.currentTimeMillis(),
+    var completed: Long? = null
 )

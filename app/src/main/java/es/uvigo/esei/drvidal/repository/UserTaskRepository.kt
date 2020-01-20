@@ -1,5 +1,6 @@
 package es.uvigo.esei.drvidal.repository
 
+import androidx.lifecycle.LiveData
 import es.uvigo.esei.drvidal.dao.UserTaskDao
 import es.uvigo.esei.drvidal.entity.UserTaskEntity
 
@@ -12,7 +13,11 @@ class UserTaskRepository(private val userTaskDao: UserTaskDao) {
         userTaskDao.insert(userTask)
     }
 
-    fun getAllByUserId(userId: String) : List<UserTaskEntity> {
-        return userTaskDao.getAllByUserId(userId)
+    fun getAllByUserIdAndCompleted(userId: String, completed: Boolean) : LiveData<List<UserTaskEntity>> {
+        return if (completed) {
+            userTaskDao.getAllByUserIdAndCompleted(userId)
+        } else {
+            userTaskDao.getAllByUserIdAndPending(userId)
+        }
     }
 }

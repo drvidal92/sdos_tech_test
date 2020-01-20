@@ -4,24 +4,19 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import es.uvigo.esei.drvidal.dao.HabilityDao
-import es.uvigo.esei.drvidal.dao.UserDao
-import es.uvigo.esei.drvidal.dao.UserHabilityDao
-import es.uvigo.esei.drvidal.dao.UserTaskDao
-import es.uvigo.esei.drvidal.entity.HabilityEntity
-import es.uvigo.esei.drvidal.entity.UserEntity
-import es.uvigo.esei.drvidal.entity.UserHabilityEntity
-import es.uvigo.esei.drvidal.entity.UserTaskEntity
+import es.uvigo.esei.drvidal.dao.*
+import es.uvigo.esei.drvidal.entity.*
 
 /**
  * Created by Denís Requejo on 2020-01-15.
  */
-@Database(entities = [UserEntity::class, HabilityEntity::class, UserHabilityEntity::class, UserTaskEntity::class], version = 10, exportSchema = false)
+@Database(entities = [UserEntity::class, HabilityEntity::class, UserHabilityEntity::class, UserTaskEntity::class, WebServiceEntity::class], version = 1, exportSchema = false)
 abstract class MyRoomDatabase : RoomDatabase() {
     abstract fun userDao(): UserDao
     abstract fun userHabilityDao(): UserHabilityDao
     abstract fun taskDao(): HabilityDao
     abstract fun userTaskDao(): UserTaskDao
+    abstract fun webServiceDao(): WebServiceDao
 
     companion object {
         @Volatile

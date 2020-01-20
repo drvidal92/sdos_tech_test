@@ -2,6 +2,7 @@ package es.uvigo.esei.drvidal.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import es.uvigo.esei.drvidal.database.MyRoomDatabase
 import es.uvigo.esei.drvidal.entity.UserTaskEntity
 import es.uvigo.esei.drvidal.repository.UserTaskRepository
@@ -21,7 +22,7 @@ class UserTaskViewModel(application: Application) : AndroidViewModel(application
         repository.insert(userTask)
     }
 
-    fun getAllByUserId(userId: String) : List<UserTaskEntity> {
-        return repository.getAllByUserId(userId)
+    fun getAllByUserIdAndCompleted(userId: String, completed: Boolean) : LiveData<List<UserTaskEntity>> {
+        return repository.getAllByUserIdAndCompleted(userId, completed)
     }
 }

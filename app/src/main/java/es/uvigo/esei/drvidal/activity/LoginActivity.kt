@@ -88,20 +88,22 @@ class LoginActivity : AppCompatActivity() {
             mProgressDialog.show()
             Handler().postDelayed({
                 mProgressDialog.dismiss()
-                btn_login.isEnabled = true
                 when (userEntity.type) {
                     UserEntity.ADMIN -> {
                         val intent = Intent(this@LoginActivity, AdminActivity::class.java)
                         intent.putExtra(EXTRA_USER, userEntity)
                         startActivity(intent)
+                        btn_login.isEnabled = true
                     }
                     UserEntity.TECHNICAL -> {
                         val intent = Intent(this@LoginActivity, TechnicalActivity::class.java)
                         intent.putExtra(EXTRA_USER, userEntity)
                         startActivity(intent)
+                        btn_login.isEnabled = true
                     }
                     else -> {
                         toast("Tipo de usuario no válido")
+                        btn_login.isEnabled = true
                     }
                 }
             }, 1500)
@@ -115,8 +117,8 @@ class LoginActivity : AppCompatActivity() {
             mProgressDialog.show()
             Handler().postDelayed({
                 mProgressDialog.dismiss()
-                btn_login.isEnabled = false
                 toast("Credenciales incorrectos")
+                btn_login.isEnabled = true
             }, 1500)
         }
     }
@@ -156,7 +158,5 @@ class LoginActivity : AppCompatActivity() {
             UserHabilityEntity("lalonso", 5),
             UserHabilityEntity("efernandez", 4)
         )
-
-
     }
 }

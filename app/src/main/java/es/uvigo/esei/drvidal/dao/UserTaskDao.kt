@@ -1,5 +1,6 @@
 package es.uvigo.esei.drvidal.dao
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -15,8 +16,14 @@ interface UserTaskDao: BaseDao<UserTaskEntity> {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(userHabilities: List<UserTaskEntity>)
 
-    @Query("SELECT * FROM UserTaskEntity WHERE userId = :userId")
-    fun getAllByUserId(userId: String) : List<UserTaskEntity>
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(userTask: UserTaskEntity)
+
+    @Query("SELECT * FROM UserTaskEntity WHERE userId = :userId AND completed IS NOT NULL ORDER BY assigned ASC")
+    fun getAllByUserIdAndCompleted(userId: String) : LiveData<List<UserTaskEntity>>
+
+    @Query("SELECT * FROM UserTaskEntity WHERE userId = :userId AND completed IS NULL ORDER BY assigned ASC")
+    fun getAllByUserIdAndPending(userId: String) : LiveData<List<UserTaskEntity>>
 }
 
 

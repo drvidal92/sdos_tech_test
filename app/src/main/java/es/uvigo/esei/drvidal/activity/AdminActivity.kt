@@ -1,6 +1,8 @@
 package es.uvigo.esei.drvidal.activity
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -13,6 +15,7 @@ import es.uvigo.esei.drvidal.R
 import es.uvigo.esei.drvidal.entity.UserEntity
 import es.uvigo.esei.drvidal.entity.UserTaskEntity
 import es.uvigo.esei.drvidal.util.ioThread
+import es.uvigo.esei.drvidal.util.transformToHoursAndMinutes
 import es.uvigo.esei.drvidal.viewmodel.HabilityViewModel
 import es.uvigo.esei.drvidal.viewmodel.UserHabilityViewModel
 import es.uvigo.esei.drvidal.viewmodel.UserTaskViewModel
@@ -22,7 +25,6 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 /**
@@ -36,7 +38,8 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var userHabilityViewModel: UserHabilityViewModel
     private var dateSelected: Long = System.currentTimeMillis()
     private var minutesAssigned: Int = 15
-    private var habilityIdSelected = 1
+    private var habilityIdSelected: Int? = null
+    private var habilityNameSelected: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -80,7 +83,7 @@ class AdminActivity : AppCompatActivity() {
                         }
                     }
                 }
-                yesButton {
+                positiveButton("Crear") {
                     val cal = Calendar.getInstance()
                     cal[Calendar.DAY_OF_MONTH] = datePicker.dayOfMonth
                     cal[Calendar.MONTH] = datePicker.month
@@ -91,7 +94,7 @@ class AdminActivity : AppCompatActivity() {
                     text_date_selected.text = currentDate
                     image_button_select_date.isEnabled = true
                 }
-                noButton {
+                negativeButton("Cancelar") {
                     image_button_select_date.isEnabled = true
                 }
             }.show()
@@ -103,6 +106,7 @@ class AdminActivity : AppCompatActivity() {
             val tasks = habilityViewModel.getAll()
             if (tasks.isNotEmpty()) {
                 habilityIdSelected = tasks[0].id
+                habilityNameSelected = tasks[0].name
             }
             runOnUiThread{
                 val adapter = ArrayAdapter(this,
@@ -114,6 +118,7 @@ class AdminActivity : AppCompatActivity() {
                     override fun onItemSelected(parent: AdapterView<*>,
                                                 view: View, position: Int, id: Long) {
                         habilityIdSelected  = tasks[position].id
+                        habilityNameSelected = tasks[position].name
                     }
 
                     override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -137,8 +142,8 @@ class AdminActivity : AppCompatActivity() {
                     fromUser: Boolean
                 ) {
                     val minutesProgress = minMillisDuration + (progress * stepMillisDuration)
-                    text_seek_bar.text = getTextSeekBar(minutesProgress)
-                    minutesAssigned = minutesProgress.toInt()
+                    text_seek_bar.text = minutesProgress.transformToHoursAndMinutes()
+                    minutesAssigned = minutesProgress.toInt() / 1000 / 60
                 }
             }
         )
@@ -150,42 +155,52 @@ class AdminActivity : AppCompatActivity() {
         text_date_selected.text = currentDate
     }
 
-    private fun getTextSeekBar(millis: Long) : String {
-        return String.format("%d horas, %d minutos",
-            TimeUnit.MILLISECONDS.toHours(millis),
-            TimeUnit.MILLISECONDS.toMinutes(millis) - TimeUnit.HOURS.toMinutes(
-                TimeUnit.MILLISECONDS.toHours(millis))
-        )
-    }
-
     private fun setupListeners() {
         btn_create_task.onClick {
             btn_create_task.isEnabled = false
             val user = user
-            if (user != null) {
+            if (user != null ) {
                 ioThread {
-                    val users = getUsersByHabilityId(habilityIdSelected)
-                    if(users.isNotEmpty()) {
-                        val userTaskEntity = UserTaskEntity(user.id, habilityIdSelected,  edit_text_description.text.toString(), dateSelected, minutesAssigned)
-                        userTaskViewModel.insert(userTaskEntity)
-                        runOnUiThread{
-                            toast("Tarea añadida correctamente")
-                            alert {
-                                title = "¿Quiere añadir otra tarea?"
-                                isCancelable = false
-                                yesButton {
-                                    recreate()
-                                }
-                                noButton {
-                                    finish()
-                                }
-                            }.show()
+                    val habilityId = habilityIdSelected
+                    val habilityName = habilityNameSelected
+                    if (habilityId != null && habilityName != null) {
+                        val users = getUsersByHabilityId(habilityId)
+                        if (users.isNotEmpty()) {
+                            val userTaskEntity = UserTaskEntity(
+                                users[0].id,
+                                habilityId,
+                                edit_text_description.text.toString(),
+                                dateSelected,
+                                minutesAssigned,
+                                habilityName
+                            )
+                            userTaskViewModel.insert(userTaskEntity)
+                            runOnUiThread {
+                                toast("Tarea añadida correctamente al usuario " + users[0].name)
+                                alert {
+                                    title = "¿Quiere añadir otra tarea?"
+                                    isCancelable = false
+                                    yesButton {
+                                        recreate()
+                                    }
+                                    noButton {
+                                        finish()
+                                    }
+                                }.show()
+                            }
+                        } else {
+                            toast("No hay usuarios disponibles para esta tarea en este día")
                         }
-                    } else {
-                        toast("No hay usuarios disponibles para esta tarea en este día")
                     }
                 }
+            } else {
+                toast("Por seguridad, introduzca credenciales")
             }
+        }
+
+        fab.onClick {
+            val intent = Intent(this@AdminActivity, PeachesActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -193,5 +208,35 @@ class AdminActivity : AppCompatActivity() {
         return userHabilityViewModel.getUsersByHabilityId(habilityId)
         //TODO: Get user with lower work that day
     }
+
+    override fun onBackPressed() {
+        handleOnCloseSession()
+    }
+
+    private fun handleOnCloseSession() {
+        alert(
+            "¿Desea cerrar sesión?"
+        ) {
+            positiveButton("Si") {
+                finish()
+            }
+            negativeButton("No") {
+
+            }
+            isCancelable = false
+        }.show()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection
+        return when (item.itemId) {
+            R.id.close_session -> {
+                handleOnCloseSession()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
 
 }
